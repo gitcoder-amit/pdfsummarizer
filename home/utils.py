@@ -1,14 +1,17 @@
 import pdfplumber
 import requests
 from django.conf import settings
+import os
 
-ENDPOINT = "https://api.groq.com/openai/v1/chat/completions"
+ENDPOINT = os.getenv("GROQ_ENDPOINT")
+GROQ_API = os.getenv("GROQ_API")
+
 
 
 def call_llm_api(text):
     headers = {
         "Content-Type": "application/json",
-        "Authorization": f"Bearer {settings.GROQ_API}"  }
+        "Authorization": f"Bearer {GROQ_API}"  }
     prompt = f"Summarize the following text clearly and try to make this short as much as possible: {text}"
 
     payload = {
