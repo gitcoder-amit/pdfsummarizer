@@ -1,6 +1,7 @@
 import os
 
 from celery import Celery
+from home.utils import call_llm_api, convert_to_pdf, read_pdf
 
 # Set the default Django settings module for the 'celery' program.
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'pdfsummarizer.settings')
@@ -20,3 +21,12 @@ app.autodiscover_tasks()
 @app.task(bind=True, ignore_result=True)
 def debug_task(self):
     print(f'Request: {self.request!r}')
+
+
+@app.task(bind=True, ignore_result=True)
+def summarize_pdf(self, file_path, max_length=100):
+    text = read_pdf(file_path)
+    if text:
+        summarized_text  = call_llm_api(text)
+        return convert_to_pdf(summarized_text)
+    return None

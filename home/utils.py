@@ -5,7 +5,12 @@ import os
 from django.template.loader import render_to_string
 import pdfkit
 from playwright.sync_api import sync_playwright
+import uuid
 
+import os
+from dotenv import load_dotenv
+
+load_dotenv()
 
 
 ENDPOINT = os.getenv("GROQ_ENDPOINT")
@@ -38,7 +43,7 @@ def convert_to_pdf(text):
         html = render_to_string('pdf_template.html', {'content': text})
         output_dir = os.path.join(settings.BASE_DIR, 'outputpdfs')
         os.makedirs(output_dir, exist_ok=True)
-        output_path = os.path.join(output_dir, 'summary.pdf')
+        output_path = os.path.join(output_dir, f'summary_{uuid.uuid4()}.pdf')
         with sync_playwright() as p:
             browser = p.chromium.launch()
             page = browser.new_page()
@@ -61,9 +66,3 @@ def read_pdf(file_path):
         return None
     
     
-def summarize_pdf(file_path, max_length=100):
-    text = read_pdf(file_path)
-    if text:
-        summarized_text  = call_llm_api(text)
-        return convert_to_pdf(summarized_text)
-    return None
